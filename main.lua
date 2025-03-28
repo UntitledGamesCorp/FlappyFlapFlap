@@ -9,6 +9,8 @@ local frameCount = 0
 local score = 0
 local hillColor = { 34, 139, 34 }
 
+local gameState = "menu"
+
 function setup()
     createWindow(400, 400)
     textSize(24)
@@ -16,6 +18,33 @@ function setup()
 end
 
 function draw()
+    if gameState == "menu" then
+        drawMenu()
+    else
+        drawGame()
+    end
+end
+
+function drawMenu()
+    -- Draw background
+    background(135, 206, 235)
+    drawHills()
+
+    -- Draw menu text
+    fill('white')
+    text("FlappyFlapFlap", width / 2, height / 3)
+
+    -- Draw play button
+    rectMode(CENTER)
+    fill('green')
+    rect(width / 2, height / 2 + 40, 100, 40)
+
+    -- Draw play text
+    fill('white')
+    text("Play", width / 2, height / 2 + 50)
+end
+
+function drawGame()
     background(135, 206, 235)
     drawHills()
     drawBird()
@@ -33,9 +62,12 @@ function draw()
         spawnPipe()
     end
 
+    stroke(0) -- Add a stroke to help debug shapes
     for i = #pipes, 1, -1 do
         local pipe = pipes[i]
         pipe.x = pipe.x - 3
+
+        rectMode(CORNER)
         fill('green')
         rect(pipe.x, 0, pipeWidth, pipe.top)
         rect(pipe.x, pipe.top + pipeGap, pipeWidth, height - pipe.top - pipeGap)
@@ -59,7 +91,14 @@ function draw()
 end
 
 function mousePressed()
-    bird.vy = flapStrength
+    if gameState == "menu" then
+        -- Check if the play button is clicked
+        if mouseX > width / 2 - 50 and mouseX < width / 2 + 50 and mouseY > height / 2 + 20 and mouseY < height / 2 + 60 then
+            gameState = "game"
+        end
+    else
+        bird.vy = flapStrength
+    end
 end
 
 function spawnPipe()
@@ -78,6 +117,7 @@ function resetGame()
     pipes = {}
     score = 0
     frameCount = 0
+    gameState = "menu"
 end
 
 function drawHills()
